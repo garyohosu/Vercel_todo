@@ -34,7 +34,7 @@ classDiagram
 
     class TodoList {
         <<Component>>
-        +todos Todo
+        +todos Todo[]
         +filter FilterType
         +searchQuery String
         +onToggleStatus(id) void
@@ -63,12 +63,11 @@ classDiagram
         +GET(req, id) Response
         +PUT(req, id) Response
         +DELETE(req, id) Response
-        +validateStatusTransition(current, next) Boolean
     }
 
     class TodoRepository {
         <<Repository>>
-        +findAll() Todo
+        +findAll() Todo[]
         +findById(id) Todo nullable
         +create(data) Todo
         +update(id, data) Todo
@@ -104,7 +103,6 @@ classDiagram
     class CreateTodoInput {
         +title String
         +description String optional
-        +status Status
         +priority Priority
         +dueDate String optional
     }
@@ -193,7 +191,7 @@ classDiagram
 | ハンドラー | ファイルパス例 | 責務 |
 |------------|---------------|------|
 | TodosApiHandler | `app/api/todos/route.ts` | GET（全件取得）・POST（新規作成） |
-| TodoByIdApiHandler | `app/api/todos/[id]/route.ts` | GET（1件取得）・PUT（更新）・DELETE（削除）。PUT では status 遷移ルール（todo/doing→done, done→todo のみ）を検証する |
+| TodoByIdApiHandler | `app/api/todos/[id]/route.ts` | GET（1件取得）・PUT（更新）・DELETE（削除）。PUT は有効な status 値を受け入れる（遷移制約は UI 側で管理） |
 
 ### データアクセス層（lib/）
 

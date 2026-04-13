@@ -34,6 +34,20 @@
 | Medium | 絞り込み境界条件が未テスト | TC-06 に 6-9, 6-10 追加。TC-08 に 8-2 追加 |
 | Medium | TC-09 期限切れバッジが doing を考慮していない | 9-2 を doing ケースに追加、9-3〜9-5 に番号変更 |
 
+### Phase 6 整合レビュー（2026-04-13）
+
+| 優先度 | 指摘 | 対応 |
+|--------|------|------|
+| P1 | PUT status 遷移制約が SEQUENCE/CLASS と UI/TESTCASE で衝突 | CLASS.md の `validateStatusTransition` を削除。SEQUENCE.md SEQ-04 NOTE と CLASS.md 責務説明を「UI 側管理」に修正。Q-08 として解決済み |
+| P1 | UI.md 画面遷移図: S-03 が 404 エラーにも遷移、保存失敗が S-01 に遷移する記述が詳細仕様と矛盾 | 遷移図を修正: 保存失敗→S-02 留まり、ID不明→S-02 インラインエラー、S-03 はシステムエラーのみ |
+| P2 | POST /api/todos の status が USECASE/UI（未着手固定）と矛盾 | SEQUENCE.md POST 説明と SEQ-02 から status を削除、サーバー側で `todo` 固定に修正。CLASS.md `CreateTodoInput` からも削除 |
+| P2 | CLASS.md コレクション型: `+todos Todo` / `findAll() Todo` が単数 | `Todo[]` に修正 |
+| P2 | 日付判定タイムゾーン基準が SEQUENCE.md にのみ記載 | USECASE.md UC-06 と UI.md 検索ボックス節に「ブラウザのローカルタイムゾーン」を追記 |
+| P2 | API エラーレスポンス仕様が未定義 | SEQUENCE.md に API レスポンス仕様テーブル（200/201/400/404/500）を追加 |
+| P3 | SEQ-03 の成功分岐が SEQ-02 と二重定義 | `Note` で「成功時は SEQ-02 と同じフロー」と明記 |
+| P3 | CLASS.md メンバー記法が非標準寄り | `Todo[]` 修正で一部改善。完全正規化は実装フェーズに委ねる |
+| OK | GitHub 上での Mermaid 表示 | 致命的な構文崩れなし。標準機能のみ使用 |
+
 ### UI.md レビュー（2026-04-13）
 
 | 優先度 | 指摘 | 対応 |

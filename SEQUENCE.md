@@ -6,12 +6,23 @@
 |---------|------|------|
 | GET | /api/todos | 一覧取得（v1 は全件取得のみ） |
 | GET | /api/todos/:id | 1件取得（編集画面の初期表示用） |
-| POST | /api/todos | 新規作成。body: `{ title, description, dueDate, priority, status }` |
+| POST | /api/todos | 新規作成。body: `{ title, description, dueDate, priority }` ※ status は `todo` 固定 |
 | PUT | /api/todos/:id | 更新。body: `{ title, description, dueDate, priority, status }` |
 | DELETE | /api/todos/:id | 削除 |
 
 > **注記**: フィールド名は JSON は camelCase（`dueDate`）、DB カラムは snake_case（`due_date`）で使い分ける。  
-> v1 の絞り込み・検索はフロントエンド側で行う（GET /api/todos は全件取得のみ）。
+> v1 の絞り込み・検索はフロントエンド側で行う（GET /api/todos は全件取得のみ）。  
+> 日付比較（期限切れ / 今日まで）はブラウザのローカルタイムゾーンで行う。
+
+## API レスポンス仕様
+
+| ステータス | 条件 | レスポンスボディ |
+|-----------|------|----------------|
+| 200 OK | GET/PUT/DELETE 成功 | タスクオブジェクト（DELETE は空） |
+| 201 Created | POST 成功 | 作成されたタスクオブジェクト |
+| 400 Bad Request | バリデーション失敗 | `{ "error": "message", "fieldErrors": { "field": "message" } }` |
+| 404 Not Found | タスクが存在しない | `{ "error": "Not found" }` |
+| 500 Internal Server Error | サーバーエラー | `{ "error": "Internal server error" }` |
 
 ---
 
@@ -59,9 +70,9 @@ sequenceDiagram
 
     User->>Browser: フォームに入力して送信
     Browser->>Browser: フロントエンドバリデーション通過
-    Browser->>API: POST /api/todos { title, description, dueDate, priority, status }
+    Browser->>API: POST /api/todos { title, description, dueDate, priority }
     API->>API: サーバーサイドバリデーション通過
-    API->>DB: INSERT INTO todos (title, description, due_date, priority, status)
+    API->>DB: INSERT INTO todos (title, description, due_date, priority, status) VALUES (..., 'todo')
     DB-->>API: 作成されたレコード
     API-->>Browser: 201 Created - JSON
     Browser-->>User: タスク一覧を更新して表示
@@ -88,6 +99,7 @@ sequenceDiagram
             API-->>Browser: 400 Bad Request
             Browser-->>User: エラーメッセージ表示
         else バリデーション通過
+            Note over API,Browser: 成功時は SEQ-02 と同じフロー（DB 書き込み → 201 Created）
             API-->>Browser: 201 Created
             Browser-->>User: タスク一覧を更新
         end
